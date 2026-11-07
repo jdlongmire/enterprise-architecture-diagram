@@ -1,0 +1,123 @@
+{
+  "title": "RHAC Systems Viewpoint",
+  "subtitle": "Conceptual UAF-aligned systems interaction view for the Agentic Enterprise",
+  "theme": {
+    "font": "Arial",
+    "accent": "16365D",
+    "accent2": "224A75",
+    "arrow": "52749C"
+  },
+  "nodes": [
+    {
+      "title": "Enterprise User",
+      "icon": "user",
+      "desc": "Role-driven work initiation"
+    },
+    {
+      "title": "ADW",
+      "desc": "Agentic Digital Workspace"
+    },
+    {
+      "title": "GOA",
+      "shape": "banner",
+      "desc": "Governed operations assistant"
+    },
+    {
+      "title": "MxM Governance",
+      "desc": "Policy and delegated authority"
+    },
+    {
+      "title": "AIOC",
+      "desc": "Agent service operations"
+    },
+    {
+      "title": "Capability Catalog",
+      "desc": "Approved enterprise capabilities"
+    },
+    {
+      "title": "Agent Services",
+      "desc": "Role-specific execution agents"
+    },
+    {
+      "title": "Enterprise Systems",
+      "desc": "Business and engineering tools"
+    },
+    {
+      "title": "Identity Service",
+      "desc": "Authentication and entitlements"
+    },
+    {
+      "title": "Audit Evidence",
+      "desc": "Traceable execution records"
+    }
+  ],
+  "edges": [
+    {
+      "from": "Enterprise User",
+      "to": "ADW"
+    },
+    {
+      "from": "ADW",
+      "to": "GOA",
+      "label": "Intent"
+    },
+    {
+      "from": "GOA",
+      "to": "MxM Governance",
+      "label": "Authorize"
+    },
+    {
+      "from": "GOA",
+      "to": "Capability Catalog",
+      "label": "Discover"
+    },
+    {
+      "from": "GOA",
+      "to": "AIOC",
+      "label": "Delegate"
+    },
+    {
+      "from": "AIOC",
+      "to": "Agent Services",
+      "label": "Dispatch"
+    },
+    {
+      "from": "Agent Services",
+      "to": "Enterprise Systems",
+      "label": "Execute"
+    },
+    {
+      "from": "MxM Governance",
+      "to": "Identity Service",
+      "label": "Verify",
+      "dashed": true
+    },
+    {
+      "from": "Agent Services",
+      "to": "Audit Evidence",
+      "label": "Record",
+      "dashed": true
+    },
+    {
+      "from": "AIOC",
+      "to": "Audit Evidence",
+      "label": "Monitor",
+      "dashed": true
+    }
+  ],
+  "zones": [
+    {
+      "title": "Governed Agentic Workspace",
+      "nodes": [
+        "ADW",
+        "GOA",
+        "MxM Governance",
+        "AIOC",
+        "Capability Catalog",
+        "Agent Services"
+      ],
+      "hue": "blue"
+    }
+  ],
+  "notes": "Illustrative conceptual systems viewpoint; UAF compliance and deployment interfaces require formal model validation."
+}
