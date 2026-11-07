@@ -8,10 +8,10 @@ Output formats: PPTX (the editable master), plus PDF, PNG, JPG, and SVG rendered
 
 ## Author
 
-James D. (JD) Longmire
-Senior Technical Fellow — Aerospace & Defense Sector
-Independent Researcher
-ORCID: 0009-0009-1383-7698
+James D. (JD) Longmire\
+Senior Technical Fellow — Aerospace & Defense Sector\
+Independent Researcher\
+ORCID: 0009-0009-1383-7698\
 Correspondence: jdlongmire@outlook.com
 
 ## License
