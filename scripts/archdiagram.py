@@ -76,19 +76,22 @@ def text_w(text, size, bold=False):
     return sum(_CW.get(ch, 0.5) for ch in str(text)) * size / 72 * (1.05 if bold else 1.0) * _FW[0]
 
 
+RENDER_SLACK = 1.2  # measured: LibreOffice's substitute font (Noto Sans) lays words out up to ~1.16x wider than the widest table below
+
+
 def word_w(text, size, bold=False):
-    """Word width under the widest shipped metric. Calibri is the design font, but a renderer
-    without it (LibreOffice preview) substitutes a wider font; a word that fits on paper must
-    not split there either."""
+    """Word width under the widest shipped metric, plus renderer slack. Calibri is the design
+    font, but a renderer without it (LibreOffice preview) substitutes a wider font; a word that
+    fits on paper must not split there either."""
     w = text_w(text, size, bold)
     if _METRIC[0] != "arial":
         _METRIC[0] = "arial"
         w = max(w, text_w(text, size, bold))
         _METRIC[0] = "calibri"
-    return w
+    return w * RENDER_SLACK
 
 
-def est_lines(text, size, width, bold=False):
+def est_lines(text, size, width, bold=False, wide=False):
     if not text:
         return 0
     avail = width * 0.97  # small safety margin
@@ -97,7 +100,7 @@ def est_lines(text, size, width, bold=False):
     for para in str(text).split("\n"):
         lines += 1; cur = 0.0
         for w in para.split():
-            ww = text_w(w, size, bold)
+            ww = word_w(w, size, bold) if wide else text_w(w, size, bold)
             if ww > avail:
                 _LONG.add(w); lines += int(ww / avail)  # will break mid-word
             if cur == 0: cur = ww
@@ -106,8 +109,8 @@ def est_lines(text, size, width, bold=False):
     return lines
 
 
-def th(text, size, width, bold=False):
-    return est_lines(text, size, width, bold) * size * LH
+def th(text, size, width, bold=False, wide=False):
+    return est_lines(text, size, width, bold, wide) * size * LH
 
 
 class Diagram:
@@ -137,9 +140,9 @@ class Diagram:
         avg = text_w("abcdefghijklmnopqrstuvwxyz eeee aaaa", size, bold) / 36
         return max(4, int(width * 0.97 * lines / avg) - 2 * lines)
 
-    def check(self, path, what, text, size, width, max_lines, bold=False, severity="error"):
+    def check(self, path, what, text, size, width, max_lines, bold=False, severity="error", wide=False):
         if not text: return
-        n = est_lines(text, size, width, bold)
+        n = est_lines(text, size, width, bold, wide)
         if n > max_lines:
             lim = self.max_chars(size, width, max_lines, bold)
             self.issue(severity, path, f'{what} "{text}" wraps to {n} lines (limit {max_lines})',
@@ -486,8 +489,8 @@ class Diagram:
 
     # ---------- connected diagrams: nodes + glued connectors ----------
     def _node_text_h(self, n, w, icon):
-        iw = w - (0.62 if icon else 0.24) - 0.07  # margins + rounded-corner text inset
-        return th(n["title"], self.fs(10.5), iw, True) + th(n.get("desc"), self.fs(8.5), iw)
+        iw = w - (0.54 if icon else 0.14) - 0.03  # margins + rounded-corner text inset
+        return th(n["title"], self.fs(10.5), iw, True, True) + th(n.get("desc"), self.fs(8.5), iw, wide=True)
 
     def add_graph_slide(self, spec):
         from pptx.enum.shapes import MSO_CONNECTOR
@@ -514,28 +517,44 @@ class Diagram:
         cw, ch = aw / cols, ah / rows
         nw = min(cw * spec.get("node_w", 0.82 if lanes else 0.78), spec.get("node_max_w", 2.6))
         boxes = [n for n in nodes if n.get("shape", "card") in ("card", "banner")]
-        margins = lambda n: (0.62 if n.get("icon") else 0.24) + 0.07
+        margins = lambda n: (0.54 if n.get("icon") else 0.14) + 0.03
         def eff_widths():
-            # A box expands (up to its cell width plus a small spill) so its longest word fits whole;
-            # a word is never split across lines.
+            # A box expands (up to its cell width plus a small spill) until its title and desc
+            # each fit in two lines under the estimator; a word is never split across lines.
             ws = {}
+            saved_long = set(_LONG)  # width probes are hypothetical; they must not leak into the too-long record
             for n in boxes:
-                need = 0.0
-                for txt, sz, b in ((n["title"], 10.5, True), (n.get("desc"), 8.5, False)):
-                    if txt: need = max(need, max(word_w(wd, self.fs(sz), b) for wd in txt.split()))
-                ws[n["id"]] = min(max(nw * n.get("w", 1), need * 1.03 / 0.97 + margins(n)), cw * 1.15)
+                base = nw * n.get("w", 1); mg = margins(n); cap = cw * 1.15
+                def fits(tw):
+                    avail = tw * 0.97
+                    for txt, sz, b in ((n["title"], 10.5, True), (n.get("desc"), 8.5, False)):
+                        if not txt: continue
+                        if max(word_w(wd, self.fs(sz), b) for wd in txt.split()) > avail: return False
+                        if est_lines(txt, self.fs(sz), tw, b, True) > 2: return False
+                    return True
+                tw = base - mg
+                if not fits(tw):
+                    lo, hi = tw, cap - mg
+                    if fits(hi):
+                        for _ in range(7):
+                            mid = (lo + hi) / 2
+                            if fits(mid): hi = mid
+                            else: lo = mid
+                    tw = hi
+                ws[n["id"]] = min(max(base, tw + mg), cap)
+            _LONG.clear(); _LONG.update(saved_long)
             return ws
         WS = eff_widths()
         def fit():
             _LONG.clear()
             WS.update(eff_widths())
-            tl = max([est_lines(n["title"], self.fs(10.5), WS[n["id"]] - margins(n), True) for n in boxes] or [1])
+            tl = max([est_lines(n["title"], self.fs(10.5), WS[n["id"]] - margins(n), True, True) for n in boxes] or [1])
             for n in nodes:
                 if n.get("shape") in ("pill", "decision"):
                     avail = nw * 0.8 - 0.45 if n.get("shape") == "pill" else min(nw * 1.05, 1.8) * 0.5 - 0.04  # inscribed text area
-                    est_lines(n["title"], self.fs(10.5 if n.get("shape") == "pill" else 9.5), avail, True)
+                    est_lines(n["title"], self.fs(10.5 if n.get("shape") == "pill" else 9.5), avail, True, True)
             if _LONG: tl = max(tl, 3)
-            dl = max([est_lines(n.get("desc"), self.fs(8.5), WS[n["id"]] - margins(n)) for n in boxes if n.get("desc")] or [1])
+            dl = max([est_lines(n.get("desc"), self.fs(8.5), WS[n["id"]] - margins(n), wide=True) for n in boxes if n.get("desc")] or [1])
             h = max(spec.get("node_h", 0.62), max([self._node_text_h(n, WS[n["id"]], n.get("icon")) + 0.2 for n in boxes] or [0]))
             return tl, dl, h
         tl, dl, nh = fit()
@@ -579,9 +598,9 @@ class Diagram:
             kind = n.get("shape", "card")
             npth = f"slides[{self.si}].nodes[{i}]"
             if kind in ("card", "banner"):
-                tw_ = WS[n["id"]] - (0.62 if n.get("icon") else 0.24) - 0.07
-                self.check(npth + ".title", "Box title", n["title"], self.fs(10.5), tw_, 2, True)
-                self.check(npth + ".desc", "Box desc", n.get("desc"), self.fs(8.5), tw_, 2)
+                tw_ = WS[n["id"]] - (0.54 if n.get("icon") else 0.14) - 0.03
+                self.check(npth + ".title", "Box title", n["title"], self.fs(10.5), tw_, 2, True, wide=True)
+                self.check(npth + ".desc", "Box desc", n.get("desc"), self.fs(8.5), tw_, 2, wide=True)
             elif kind == "pill":
                 self.check(npth + ".title", "Start/end title", n["title"], self.fs(10.5), nw * 0.8 - 0.45, 2, True)
             else:
@@ -609,8 +628,8 @@ class Diagram:
             s.name = f"Box - {n['title']}"
             tf = s.text_frame; tf.word_wrap = True; tf.vertical_anchor = MSO_ANCHOR.MIDDLE
             has_icon = bool(n.get("icon")) and kind in ("card", "banner")
-            pad = 0.02 if kind == "decision" else 0.12
-            tf.margin_left = Inches(0.5 if has_icon else pad); tf.margin_right = Inches(pad)
+            pad = 0.02 if kind == "decision" else 0.07
+            tf.margin_left = Inches(0.47 if has_icon else pad); tf.margin_right = Inches(pad)
             tf.margin_top = tf.margin_bottom = Inches(0.04)
             ink, ink2 = (T["on_accent"], T["on_accent_sub"]) if banner else (T["ink"], T["ink2"])
             align = PP_ALIGN.LEFT if has_icon else PP_ALIGN.CENTER
