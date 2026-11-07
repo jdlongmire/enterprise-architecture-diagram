@@ -1,0 +1,26 @@
+name: EAD RHAC example validation
+on:
+  push:
+    branches: [feat/rhac-systems-viewpoint]
+  workflow_dispatch:
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: sudo apt-get update && sudo apt-get install -y libreoffice poppler-utils
+      - run: pip install -r requirements.txt
+      - name: Generate and validate RHAC
+        run: |
+          mkdir -p out
+          python scripts/make_diagram.py examples/rhac_systems_viewpoint.json --out out/RHAC_Systems_Viewpoint.pptx --png out/RHAC_preview.png --pdf out/RHAC_Systems_Viewpoint.pdf
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: rhac-ead-artifacts
+          path: |
+            out/
+            examples/rhac_systems_viewpoint.normalized.json
