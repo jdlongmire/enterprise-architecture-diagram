@@ -2,11 +2,13 @@
 """make_diagram.py: the one command to run.
 
   python3 scripts/make_diagram.py SPEC.json --out NAME.pptx [--png preview.png] [--pdf NAME.pdf] [--jpg img.jpg] [--svg NAME.svg]
+  python3 scripts/make_diagram.py SPEC.json --out NAME.pptx --dry-run
 
 1. Reads SPEC.json leniently and writes SPEC.normalized.json (the clean spec; edit THAT file on later rounds).
 2. Validates structure, builds an editable .pptx, renders a PNG preview if LibreOffice is installed.
 3. Also renders the finished deck to PDF, JPG or SVG when those flags are given (through LibreOffice; the .pptx stays the editable master).
-4. Prints a report and writes NAME.report.json.
+4. With --dry-run it runs the full layout and checks but keeps no file: use it to read the real per-box limits for a crowded spec before writing final text.
+5. Prints a report and writes NAME.report.json.
 
 Exit codes: 0 = PASS (deliver it)  1 = FIX (file built, but follow NEXT ACTIONS and rerun)  2 = INVALID spec (nothing built)
 """
@@ -80,7 +82,11 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("spec"); ap.add_argument("--out", required=True); ap.add_argument("--png", default=None)
     ap.add_argument("--pdf", default=None); ap.add_argument("--jpg", default=None); ap.add_argument("--svg", default=None)
+    ap.add_argument("--dry-run", action="store_true")
     a = ap.parse_args()
+    missing = [t for t in ("soffice", "pdftoppm") if not shutil.which(t)]
+    if missing:
+        print("NOTE: " + " and ".join(missing) + " not found: PNG previews and PDF/JPG/SVG outputs are unavailable; the .pptx still builds.")
     raw = open(a.spec, encoding="utf-8").read()
     base = os.path.splitext(a.out)[0]
     report = {"result": None, "output": None, "preview": [], "extras": {}, "normalized_spec": None, "auto_fixes": [], "issues": [], "next_actions": []}
@@ -109,14 +115,23 @@ def main():
         report["result"] = "INVALID"
         report["next_actions"] = action_list(report["issues"], norm_path)
         return finish(report, base, 2)
+    build_out = a.out
+    tmp_pptx = None
+    if a.dry_run:
+        import tempfile
+        fd, tmp_pptx = tempfile.mkstemp(suffix=".pptx"); os.close(fd); build_out = tmp_pptx
     try:
-        d = A.build(spec, a.out)
+        d = A.build(spec, build_out)
     except SystemExit as e:
         report["result"] = "INVALID"; report["next_actions"] = [str(e)]
         return finish(report, base, 2)
-    report["output"] = os.path.abspath(a.out)
+    report["output"] = None if a.dry_run else os.path.abspath(a.out)
+    report["dry_run"] = bool(a.dry_run)
     report["issues"] += d.issues
-    if a.png:
+    if tmp_pptx:
+        try: os.unlink(tmp_pptx)
+        except OSError: pass
+    if a.png and not a.dry_run:
         if shutil.which("soffice") and shutil.which("pdftoppm"):
             try:
                 A.export_png(a.out, a.png)
@@ -127,9 +142,10 @@ def main():
         else:
             report["issues"].append({"severity": "info", "slide": None, "path": "", "problem": "no preview: LibreOffice (soffice) or pdftoppm not installed", "fix": "rely on this report"})
     extras = {}
-    if a.pdf: extras["pdf"] = ("pdf", a.pdf)
-    if a.jpg: extras["jpg"] = ("raster", a.jpg)
-    if a.svg: extras["svg"] = ("svg", a.svg)
+    if not a.dry_run:
+        if a.pdf: extras["pdf"] = ("pdf", a.pdf)
+        if a.jpg: extras["jpg"] = ("raster", a.jpg)
+        if a.svg: extras["svg"] = ("svg", a.svg)
     for fmt, (kind, target) in extras.items():
         if not shutil.which("soffice") or (kind == "raster" and not shutil.which("pdftoppm")):
             report["issues"].append({"severity": "info", "slide": None, "path": "", "problem": f"no {fmt}: LibreOffice (soffice) or pdftoppm not installed", "fix": "deliver the .pptx, or install LibreOffice and rerun"})
@@ -145,6 +161,10 @@ def main():
     report["min_text_scale"] = round(d.min_scale, 2)
     ok = n_err == 0 and d.min_scale >= 0.75
     report["result"] = "PASS" if ok else "FIX"
+    if ok and d.min_scale < 0.85:
+        report["issues"].insert(0, {"severity": "warning", "slide": None, "path": "",
+            "problem": f"text at {int(d.min_scale * 100)}% of normal size (below 85%): small when projected",
+            "fix": "shorten the longest descriptions or widen the crowded boxes, or accept the smaller text"})
     report["next_actions"] = action_list(report["issues"], norm_path) if not ok else []
     return finish(report, base, 0 if ok else 1)
 
@@ -167,6 +187,7 @@ def action_list(issues, norm_path):
 def finish(report, base, code):
     json.dump(report, open(base + ".report.json", "w"), indent=1, ensure_ascii=False)
     print(f"RESULT: {report['result']}")
+    if report.get("dry_run"): print("DRY RUN: layout and checks only, no file kept")
     if report.get("output"): print(f"OUTPUT: {report['output']}")
     for p in report.get("preview", []): print(f"PREVIEW: {p}")
     for fmt in ("pdf", "jpg", "svg"):
@@ -180,7 +201,7 @@ def finish(report, base, code):
     warn_only = [i for i in report["issues"] if i["severity"] == "warning"]
     if report["result"] == "PASS" and warn_only:
         print("NOTES (no action required):")
-        for i in warn_only[:6]: print(f"  - {i['path']}: {i['problem']}")
+        for i in warn_only[:6]: print(f"  - {i['path'] + ': ' if i['path'] else ''}{i['problem']}")
     if report["next_actions"]:
         print("NEXT ACTIONS (do all of these, then rerun):")
         for k, act in enumerate(report["next_actions"], 1): print(f"  {k}. {act}")

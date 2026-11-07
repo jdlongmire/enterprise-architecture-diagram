@@ -1,7 +1,7 @@
 // TEMPLATE: swimlane process with decisions and live connectors (one slide).
 // Do NOT add col/row: give each node a "lane". List nodes in process order.
 // shape: "start"/"end" for the first and last step, "decision" for a yes/no question (short, ends with ?).
-// Limits: 3-5 lanes, 6-12 nodes, node title <= 20 chars, desc <= 28 chars, labels like "Yes"/"No".
+// Limits: 3-5 lanes, 6-12 nodes, node title <= 22 chars, desc <= 28 chars, labels like "Yes"/"No". Title and desc limits are per line and shrink as columns grow; see SKILL.md.
 {
   "title": "<<Process name>>",
   "subtitle": "<<One sentence>>",

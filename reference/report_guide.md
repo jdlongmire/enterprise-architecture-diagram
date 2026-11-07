@@ -5,9 +5,11 @@ Every run prints a report and saves it as `<output>.report.json`. The JSON has t
 
 `extras` lists the extra output files made when `--pdf`, `--jpg` or `--svg` was given, keyed by format. The printed report shows them as `PDF:`, `JPG:` and `SVG:` lines. An export problem (for example LibreOffice missing) appears as an `info` issue; it never changes the result, and the `.pptx` is still delivered.
 
+With `--dry-run` the report has `"dry_run": true` and `output` is null: the layout and checks ran in full, but no file was kept. Use it to read the real per-box limits for a crowded spec before writing final text.
+
 ## Result
 
-- **PASS**: no errors, and text is at 75% or more of its normal size. Deliver the file.
+- **PASS**: no errors, and text is at 75% or more of its normal size. Deliver the file. Between 75% and 85% the run still passes but carries a warning that the text is small when projected; shorten the longest descriptions or accept it knowingly.
 - **FIX**: the file was built but has errors. Do every item under NEXT ACTIONS and rerun.
 - **INVALID**: nothing was built. The spec is unreadable or structurally wrong. Do the NEXT ACTIONS, or compare your file with a template.
 
@@ -23,6 +25,7 @@ A path such as `slides[0].rows[1].panels[0].blocks[2].items[3].desc` points into
 | `words too long for their box` | Replace that word with a shorter word or abbreviation. |
 | `content is ... too tall` | Delete the least important item, shorten long descriptions, or move the last row to a new slide. |
 | `text shrunk to N%` | Shorten the longest descriptions on that slide, or give the crowded panel a bigger `w`. |
+| `text at N% of normal size (below 85%)` | Warning only, on a PASS. The text will look small projected. Shorten the longest descriptions or widen the crowded boxes, or accept it. |
 | `boxes are too tall for their rows` | Shorten node descriptions, or use fewer lanes. |
 | `same cell` | Delete `col` and `row` from every node (auto-layout), or move one node. |
 | `passes through another box` | Delete `col`/`row` from all nodes, or remove that line. |

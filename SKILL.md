@@ -37,7 +37,7 @@ Copy the template to a new file (for example `spec.json`) and replace every `<<.
 1. Use only facts the user gave or clearly implied. Do not invent numbers, products or vendors.
 2. **Titles:** 1 to 3 words, Title Case. For example "Data Lake" or "Mission Planning".
 3. **Descriptions:** 3 to 6 words, no period. For example "Catalog and long-term storage".
-4. **Length limits:** card title 18 characters or fewer, box title 22 or fewer, any description 40 or fewer (28 inside connected boxes), line labels 1 or 2 words.
+4. **Length limits:** card title 18 characters or fewer, box title 22 or fewer, any description 40 or fewer (28 inside connected boxes), line labels 1 or 2 words. Inside connected boxes the limits are per line and shrink as the grid gains columns, because the boxes get narrower: title 22 / desc 28 holds up to 4 columns; at 5 columns keep titles near 17 characters per line and descs near 24 per line; at 6 columns, near 13 and 17. Long single words wrap worst of all. On a crowded connected slide, run the build with `--dry-run` first and read the real limits from its report before finalizing text.
 5. **Item counts:** 4 to 6 list items, 4 to 12 cards, 4 to 6 flow steps, 6 to 14 boxes per connected slide, 3 to 5 lanes.
 6. **Placeholders:** delete template items you have no content for. Never leave `<<...>>` in the file.
 7. **Icons:** `icon` may be any plain word ("database", "security", "ai"), or you can leave it out.
@@ -54,6 +54,8 @@ python3 scripts/make_diagram.py spec.json --out <Topic>_Diagram.pptx --png previ
 ```
 
 **Output formats:** the `.pptx` is always built and stays the editable master. Add flags to also render it: `--pdf <file>.pdf` (one file, one page per slide), `--jpg <file>.jpg` and `--png <file>.png` (one raster file per slide at 150 dpi, named `<file>-1.jpg`, `<file>-2.jpg`, ...), `--svg <file>.svg` (one file for the whole deck, slides as groups inside it). All of them are rendered from the finished PPTX by LibreOffice, so they look like the preview, not like PowerPoint itself. The report prints a `PDF:` / `JPG:` / `SVG:` line for each file made and records them under `extras` in the report JSON. A failed export is reported as info and never changes the RESULT; the `.pptx` is still delivered.
+
+**Dry run:** add `--dry-run` to run the full layout and checks without keeping a file. The report is still written, so a crowded spec can be measured first and its real per-box limits read from the report's own messages.
 
 The script prints a report. Read the first line:
 

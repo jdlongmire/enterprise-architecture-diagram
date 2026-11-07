@@ -1,6 +1,6 @@
 // TEMPLATE: system context diagram with live connectors (one slide).
 // Do NOT add col/row: the tool places boxes automatically. List nodes roughly left to right.
-// Edges may use node titles. Limits: node title <= 22 chars, node desc <= 28 chars, edge label 1-2 words.
+// Edges may use node titles. Limits: node title <= 22 chars, node desc <= 28 chars, edge label 1-2 words. Title and desc limits are per line and shrink as columns grow; see SKILL.md.
 {
   "title": "<<System name>>: System Context",
   "subtitle": "<<One sentence>>",
