@@ -191,7 +191,7 @@ class Diagram:
             key = (name, color)
             if key in files: continue
             svg = (f'<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 24 24" fill="none" '
-                   f'stroke="#{color}" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">{ICONS[name]}</svg>')
+                   f'stroke="#{color}" color="#{color}" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">{ICONS[name]}</svg>')
             base = os.path.join(self.tmp, f"{name}_{color}")
             open(base + ".svg", "w").write(svg)
             files[key] = (base + ".svg", base + ".png"); jobs.append({"svg": svg, "out": base + ".png"})

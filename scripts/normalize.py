@@ -153,6 +153,8 @@ def resolve_icon(name, context="", notes=None, where=""):
         close = difflib.get_close_matches(w, list(SYN), n=1, cutoff=0.82)
         return SYN[close[0]] if close else None
     if name:
+        raw = str(name).lower().strip()
+        if raw in ICONS: return raw
         got = try_word(str(name))
         if got:
             if got != name and notes is not None: notes.append(f"{where}: icon '{name}' -> '{got}'")
