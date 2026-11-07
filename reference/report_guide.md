@@ -1,7 +1,9 @@
 # Reading the report
 
 Every run prints a report and saves it as `<output>.report.json`. The JSON has the same content:
-`result`, `output`, `preview`, `normalized_spec`, `auto_fixes`, `issues` (each with `severity`, `path`, `problem`, `fix`), `next_actions`, `min_text_scale`.
+`result`, `output`, `preview`, `extras`, `normalized_spec`, `auto_fixes`, `issues` (each with `severity`, `path`, `problem`, `fix`), `next_actions`, `min_text_scale`.
+
+`extras` lists the extra output files made when `--pdf`, `--jpg` or `--svg` was given, keyed by format. The printed report shows them as `PDF:`, `JPG:` and `SVG:` lines. An export problem (for example LibreOffice missing) appears as an `info` issue; it never changes the result, and the `.pptx` is still delivered.
 
 ## Result
 

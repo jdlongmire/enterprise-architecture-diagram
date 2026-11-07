@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """make_diagram.py: the one command to run.
 
-  python3 scripts/make_diagram.py SPEC.json --out NAME.pptx [--png preview.png]
+  python3 scripts/make_diagram.py SPEC.json --out NAME.pptx [--png preview.png] [--pdf NAME.pdf] [--jpg img.jpg] [--svg NAME.svg]
 
 1. Reads SPEC.json leniently and writes SPEC.normalized.json (the clean spec; edit THAT file on later rounds).
 2. Validates structure, builds an editable .pptx, renders a PNG preview if LibreOffice is installed.
-3. Prints a report and writes NAME.report.json.
+3. Also renders the finished deck to PDF, JPG or SVG when those flags are given (through LibreOffice; the .pptx stays the editable master).
+4. Prints a report and writes NAME.report.json.
 
 Exit codes: 0 = PASS (deliver it)  1 = FIX (file built, but follow NEXT ACTIONS and rerun)  2 = INVALID spec (nothing built)
 """
@@ -78,10 +79,11 @@ def validate(spec):
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("spec"); ap.add_argument("--out", required=True); ap.add_argument("--png", default=None)
+    ap.add_argument("--pdf", default=None); ap.add_argument("--jpg", default=None); ap.add_argument("--svg", default=None)
     a = ap.parse_args()
     raw = open(a.spec, encoding="utf-8").read()
     base = os.path.splitext(a.out)[0]
-    report = {"result": None, "output": None, "preview": [], "normalized_spec": None, "auto_fixes": [], "issues": [], "next_actions": []}
+    report = {"result": None, "output": None, "preview": [], "extras": {}, "normalized_spec": None, "auto_fixes": [], "issues": [], "next_actions": []}
     try:
         data = N.loads_tolerant(raw)
     except Exception as e:  # unreadable JSON
@@ -124,6 +126,21 @@ def main():
                 report["issues"].append({"severity": "info", "slide": None, "path": "", "problem": f"preview failed: {e}", "fix": "ignore; the .pptx is fine"})
         else:
             report["issues"].append({"severity": "info", "slide": None, "path": "", "problem": "no preview: LibreOffice (soffice) or pdftoppm not installed", "fix": "rely on this report"})
+    extras = {}
+    if a.pdf: extras["pdf"] = ("pdf", a.pdf)
+    if a.jpg: extras["jpg"] = ("raster", a.jpg)
+    if a.svg: extras["svg"] = ("svg", a.svg)
+    for fmt, (kind, target) in extras.items():
+        if not shutil.which("soffice") or (kind == "raster" and not shutil.which("pdftoppm")):
+            report["issues"].append({"severity": "info", "slide": None, "path": "", "problem": f"no {fmt}: LibreOffice (soffice) or pdftoppm not installed", "fix": "deliver the .pptx, or install LibreOffice and rerun"})
+            continue
+        try:
+            if kind == "pdf": made = A.export_pdf(a.out, target)
+            elif kind == "svg": made = A.export_svg(a.out, target)
+            else: made = A.export_raster(a.out, target, "jpeg")
+            report["extras"][fmt] = [os.path.abspath(p) for p in made]
+        except Exception as e:
+            report["issues"].append({"severity": "info", "slide": None, "path": "", "problem": f"{fmt} export failed: {e}", "fix": "ignore; the .pptx is fine"})
     n_err = sum(1 for i in report["issues"] if i["severity"] == "error")
     report["min_text_scale"] = round(d.min_scale, 2)
     ok = n_err == 0 and d.min_scale >= 0.75
@@ -152,6 +169,8 @@ def finish(report, base, code):
     print(f"RESULT: {report['result']}")
     if report.get("output"): print(f"OUTPUT: {report['output']}")
     for p in report.get("preview", []): print(f"PREVIEW: {p}")
+    for fmt in ("pdf", "jpg", "svg"):
+        for p in report.get("extras", {}).get(fmt, []): print(f"{fmt.upper()}: {p}")
     if report.get("normalized_spec"): print(f"CLEAN SPEC: {report['normalized_spec']}")
     if report.get("min_text_scale") is not None: print(f"TEXT SCALE: {int(report['min_text_scale']*100)}% (75% or more required)")
     if report["auto_fixes"]:

@@ -786,14 +786,46 @@ def build(spec, out, png=None):
     return d
 
 
+def _soffice(pptx, fmt, outdir):
+    env = dict(os.environ, HOME=outdir)
+    subprocess.run(["soffice", "--headless", "--convert-to", fmt, "--outdir", outdir, pptx], check=True, env=env, capture_output=True, timeout=180)
+    stem = os.path.splitext(os.path.basename(pptx))[0]
+    return sorted(os.path.join(outdir, f) for f in os.listdir(outdir) if f.startswith(stem) and f.endswith("." + fmt))
+
+
 def export_png(pptx, png):
     outdir = tempfile.mkdtemp()
-    env = dict(os.environ, HOME=outdir)
-    subprocess.run(["soffice", "--headless", "--convert-to", "pdf", "--outdir", outdir, pptx], check=True, env=env, capture_output=True, timeout=180)
-    pdf = os.path.join(outdir, os.path.splitext(os.path.basename(pptx))[0] + ".pdf")
+    pdf = _soffice(pptx, "pdf", outdir)[0]
     base = os.path.splitext(png)[0]
     subprocess.run(["pdftoppm", "-png", "-r", "150", pdf, base], check=True)
     print("rendered", *sorted(f for f in os.listdir(os.path.dirname(os.path.abspath(png)) or ".") if f.startswith(os.path.basename(base)) and f.endswith(".png")))
+
+
+def _place(srcs, target, fmt):
+    """Move soffice output to the requested path; several files (one per slide) get -1, -2 suffixes."""
+    folder = os.path.dirname(os.path.abspath(target)); stem = os.path.splitext(os.path.basename(target))[0]
+    out = []
+    for i, src in enumerate(srcs):
+        dst = target if len(srcs) == 1 else os.path.join(folder, f"{stem}-{i + 1}.{fmt}")
+        shutil.move(src, dst); out.append(dst)
+    return out
+
+
+def export_pdf(pptx, pdf):
+    return _place(_soffice(pptx, "pdf", tempfile.mkdtemp()), pdf, "pdf")
+
+
+def export_svg(pptx, svg):
+    return _place(_soffice(pptx, "svg", tempfile.mkdtemp()), svg, "svg")
+
+
+def export_raster(pptx, out, fmt):
+    pdf = _soffice(pptx, "pdf", tempfile.mkdtemp())[0]
+    base = os.path.splitext(out)[0]
+    subprocess.run(["pdftoppm", "-" + fmt, "-r", "150", pdf, base], check=True)
+    folder = os.path.dirname(os.path.abspath(out)) or "."
+    return sorted(os.path.join(folder, f) for f in os.listdir(folder)
+                  if f.startswith(os.path.basename(base) + "-") and f.endswith("." + ("jpg" if fmt == "jpeg" else fmt)))
 
 
 if __name__ == "__main__":

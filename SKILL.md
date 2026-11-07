@@ -13,7 +13,7 @@ Everything you need is in this folder:
 - `examples/` holds finished specs with `.preview.png` images of the result.
 - `reference/spec_reference.md` lists every field. `reference/icons.md` lists the icons. `reference/report_guide.md` explains every report message.
 
-Requirements: Python 3 with `pip install python-pptx lxml cairosvg`. A preview PNG also needs LibreOffice (`soffice`) and `pdftoppm`. The diagram is built without them.
+Requirements: Python 3 with `pip install python-pptx lxml cairosvg`. A preview PNG also needs LibreOffice (`soffice`) and `pdftoppm`. The diagram is built without them. The extra output formats (PDF, JPG, SVG) also render through LibreOffice.
 
 ---
 
@@ -53,6 +53,8 @@ Copy the template to a new file (for example `spec.json`) and replace every `<<.
 python3 scripts/make_diagram.py spec.json --out <Topic>_Diagram.pptx --png preview.png
 ```
 
+**Output formats:** the `.pptx` is always built and stays the editable master. Add flags to also render it: `--pdf <file>.pdf` (one file, one page per slide), `--jpg <file>.jpg` and `--png <file>.png` (one raster file per slide at 150 dpi, named `<file>-1.jpg`, `<file>-2.jpg`, ...), `--svg <file>.svg` (one file for the whole deck, slides as groups inside it). All of them are rendered from the finished PPTX by LibreOffice, so they look like the preview, not like PowerPoint itself. The report prints a `PDF:` / `JPG:` / `SVG:` line for each file made and records them under `extras` in the report JSON. A failed export is reported as info and never changes the RESULT; the `.pptx` is still delivered.
+
 The script prints a report. Read the first line:
 
 | RESULT | Meaning | What you do |
@@ -83,7 +85,7 @@ If it is still `FIX` after 4 rounds, deliver the file anyway and tell the user w
 ## Step 5: Check and deliver
 
 1. If you can view images, open each preview PNG listed in the report and confirm: no text runs outside a box, no line passes through a box, and the icons make sense. If something is wrong, fix the spec and rebuild.
-2. Give the user the `.pptx` file. Tell them in one or two sentences what it shows, and that every box, label and line is editable in PowerPoint (lines stay attached when boxes are moved).
+2. Give the user the `.pptx` file, plus any other format they asked for (PDF, PNG, JPG, SVG; see Step 3). Tell them in one or two sentences what it shows, and that every box, label and line is editable in PowerPoint (lines stay attached when boxes are moved).
 3. Do not paste the JSON spec into your answer unless the user asks for it.
 
 ---
