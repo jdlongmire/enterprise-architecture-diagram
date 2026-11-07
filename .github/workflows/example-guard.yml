@@ -1,0 +1,38 @@
+name: Example guard
+
+# Enforces the repository scope rule in SKILL.md: a pull request must not add
+# files under examples/. Adding or replacing an example requires the
+# repository owner's explicit direction.
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  example-guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Check for added files under examples/
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          added=$(git diff --name-status "$BASE_SHA...$HEAD_SHA" | awk '
+            $1 == "A" && $2 ~ /^examples\// {print $2}
+            $1 ~ /^R/ && $3 ~ /^examples\// {print $3}
+          ')
+          if [ -n "$added" ]; then
+            echo "::error::This pull request adds files under examples/:"
+            echo "$added"
+            echo "That is not allowed by the repository scope rule in SKILL.md:"
+            echo "this repository is a skill package, not a home for diagrams, and"
+            echo "adding or replacing an example requires the repository owner's"
+            echo "explicit direction."
+            exit 1
+          fi
+          echo "No new files under examples/. Example guard passed."

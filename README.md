@@ -6,6 +6,10 @@ You write a small JSON spec that describes the content. A script turns it into a
 
 Output formats: PPTX (the editable master), plus PDF, PNG, JPG, and SVG rendered from it.
 
+## Repository scope
+
+This repository is a skill package, not a home for diagrams. The `examples/` folder holds at most two worked examples; diagrams made with this skill belong with the work they illustrate. See the Repository scope section of `SKILL.md` for the full rule.
+
 ## Author
 
 James D. (JD) Longmire\

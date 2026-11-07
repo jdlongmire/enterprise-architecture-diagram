@@ -15,6 +15,10 @@ Everything you need is in this folder:
 
 Requirements: Python 3 with `pip install python-pptx lxml cairosvg`. A preview PNG also needs LibreOffice (`soffice`) and `pdftoppm`. The diagram is built without them. The extra output formats (PDF, JPG, SVG) also render through LibreOffice.
 
+## Repository scope
+
+This repository is a skill package: the diagram engine, its templates, and its documentation. It is not a home for diagrams. The `examples/` folder holds at most two worked examples, kept only to show the engine's input and expected output. Do not add diagram specs, rendered previews, or content diagrams beyond that limit. Diagrams made with this skill belong with the work they illustrate (the project, work package, or corpus that commissioned them), never in this repository. Adding or replacing an example requires the repository owner's explicit direction.
+
 ---
 
 ## Step 1: Choose the template

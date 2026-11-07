@@ -1,0 +1,6 @@
+# Repository scope rule (see SKILL.md): this repo is a skill package, not a
+# home for diagrams. Rendered build output is never committed.
+out/
+*.pptx
+*.pdf
+*.normalized.json
