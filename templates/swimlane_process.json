@@ -1,0 +1,27 @@
+// TEMPLATE: swimlane process with decisions and live connectors (one slide).
+// Do NOT add col/row: give each node a "lane". List nodes in process order.
+// shape: "start"/"end" for the first and last step, "decision" for a yes/no question (short, ends with ?).
+// Limits: 3-5 lanes, 6-12 nodes, node title <= 20 chars, desc <= 28 chars, labels like "Yes"/"No".
+{
+  "title": "<<Process name>>",
+  "subtitle": "<<One sentence>>",
+  "lanes": ["<<Role 1>>", "<<Role 2>>", "<<Role 3>>", "<<Role 4>>"],
+  "nodes": [
+    { "title": "<<Trigger>>", "shape": "start", "lane": "<<Role 1>>" },
+    { "title": "<<First step>>", "desc": "<<Short phrase>>", "lane": "<<Role 2>>" },
+    { "title": "<<Question?>>", "shape": "decision", "lane": "<<Role 2>>" },
+    { "title": "<<Step if yes>>", "desc": "<<Short phrase>>", "lane": "<<Role 3>>" },
+    { "title": "<<Rework step>>", "desc": "<<Short phrase>>", "lane": "<<Role 1>>" },
+    { "title": "<<Final step>>", "desc": "<<Short phrase>>", "lane": "<<Role 4>>" },
+    { "title": "<<Outcome>>", "shape": "end", "lane": "<<Role 4>>" }
+  ],
+  "edges": [
+    { "from": "<<Trigger>>", "to": "<<First step>>" },
+    { "from": "<<First step>>", "to": "<<Question?>>" },
+    { "from": "<<Question?>>", "to": "<<Step if yes>>", "label": "Yes" },
+    { "from": "<<Question?>>", "to": "<<Rework step>>", "label": "No" },
+    { "from": "<<Rework step>>", "to": "<<First step>>", "dashed": true },
+    { "from": "<<Step if yes>>", "to": "<<Final step>>" },
+    { "from": "<<Final step>>", "to": "<<Outcome>>" }
+  ]
+}

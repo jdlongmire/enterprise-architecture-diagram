@@ -1,0 +1,133 @@
+{
+ "title": "Enterprise Data Platform",
+ "subtitle": "How data moves from sources to decisions",
+ "rows": [
+  {
+   "panels": [
+    {
+     "title": "Why It Matters",
+     "width": 1,
+     "blocks": [
+      {
+       "type": "paragraph",
+       "text": "A governed platform that turns raw operational data into trusted insight for every team."
+      },
+      {
+       "type": "benefits",
+       "items": [
+        {
+         "name": "Faster Insight",
+         "description": "Hours instead of weeks from question to answer",
+         "icon": "speed"
+        },
+        {
+         "name": "Trusted Data",
+         "description": "Single governed source of truth",
+         "icon": "security"
+        },
+        {
+         "name": "Lower Cost",
+         "description": "Shared pipelines instead of one-off extracts"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "title": "Platform Architecture",
+     "width": 2.5,
+     "align": "center",
+     "blocks": [
+      {
+       "type": "users",
+       "title": "Data Sources",
+       "items": [
+        {
+         "name": "ERP"
+        },
+        {
+         "name": "CRM"
+        },
+        {
+         "name": "IoT Sensors"
+        },
+        {
+         "name": "Partner Feeds"
+        }
+       ]
+      },
+      {
+       "type": "core",
+       "title": "Unified Data Platform",
+       "description": "Ingest, store, govern, and serve data at scale"
+      },
+      {
+       "type": "capabilities",
+       "items": [
+        {
+         "name": "Ingestion",
+         "description": "Batch and streaming pipelines with schema validation and replay",
+         "icon": "pipeline"
+        },
+        {
+         "name": "Storage",
+         "description": "Lakehouse tables",
+         "icon": "database"
+        },
+        {
+         "name": "Governance",
+         "description": "Catalog, lineage, and access policy",
+         "color": "red"
+        },
+        {
+         "name": "Analytics",
+         "description": "SQL and notebooks",
+         "icon": "ai stuff"
+        },
+        {
+         "name": "Machine Learning",
+         "description": "Feature store and model serving",
+         "color": "purple"
+        }
+       ]
+      },
+      {
+       "type": "services",
+       "text": "Shared: Identity \u00b7 Monitoring \u00b7 Cost Management"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "panels": [
+    {
+     "title": "Data Journey",
+     "blocks": [
+      {
+       "type": "steps",
+       "items": [
+        {
+         "name": "1. Collect",
+         "description": "Land raw data"
+        },
+        {
+         "name": "2. Clean",
+         "description": "Validate and standardize"
+        },
+        {
+         "name": "3. Model",
+         "description": "Curate business entities"
+        },
+        {
+         "name": "4. Serve",
+         "description": "Dashboards, APIs, ML"
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

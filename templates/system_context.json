@@ -1,0 +1,29 @@
+// TEMPLATE: system context diagram with live connectors (one slide).
+// Do NOT add col/row: the tool places boxes automatically. List nodes roughly left to right.
+// Edges may use node titles. Limits: node title <= 22 chars, node desc <= 28 chars, edge label 1-2 words.
+{
+  "title": "<<System name>>: System Context",
+  "subtitle": "<<One sentence>>",
+  "nodes": [
+    { "title": "<<External user or source>>", "icon": "<<icon word>>" },
+    { "title": "<<Entry point, e.g. Web Portal>>" },
+    { "title": "<<Gateway or interface>>" },
+    { "title": "<<The core system>>", "shape": "banner", "desc": "<<What it does>>" },
+    { "title": "<<Component A>>", "desc": "<<Short phrase>>" },
+    { "title": "<<Data store>>", "icon": "database" },
+    { "title": "<<External dependency>>", "desc": "<<Short phrase>>" },
+    { "title": "<<Identity or security service>>" }
+  ],
+  "edges": [
+    { "from": "<<External user or source>>", "to": "<<Entry point, e.g. Web Portal>>" },
+    { "from": "<<Entry point, e.g. Web Portal>>", "to": "<<Gateway or interface>>", "label": "<<protocol>>" },
+    { "from": "<<Gateway or interface>>", "to": "<<The core system>>" },
+    { "from": "<<The core system>>", "to": "<<Component A>>" },
+    { "from": "<<The core system>>", "to": "<<Data store>>" },
+    { "from": "<<The core system>>", "to": "<<External dependency>>", "label": "<<data>>" },
+    { "from": "<<Gateway or interface>>", "to": "<<Identity or security service>>", "dashed": true, "label": "<<auth>>" }
+  ],
+  "zones": [
+    { "title": "<<Boundary name, e.g. Our Cloud>>", "nodes": ["<<Gateway or interface>>", "<<The core system>>", "<<Component A>>", "<<Data store>>"], "hue": "blue" }
+  ]
+}

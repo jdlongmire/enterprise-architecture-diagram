@@ -1,0 +1,53 @@
+// TEMPLATE: architecture overview (one slide). Replace every <<...>>. Delete items you do not need.
+// Limits: card title <= 18 chars, card desc <= 40 chars, list desc <= 45 chars, 4-6 flow steps.
+{
+  "title": "<<Diagram title, 3-6 words>>",
+  "subtitle": "<<One sentence: what this shows>>",
+  "rows": [
+    { "panels": [
+      { "title": "<<Left heading, e.g. Key Benefits>>", "w": 0.9, "blocks": [
+        { "type": "list", "items": [
+          { "title": "<<Benefit 1>>", "desc": "<<Short phrase, no period>>", "icon": "<<icon word>>" },
+          { "title": "<<Benefit 2>>", "desc": "<<Short phrase>>" },
+          { "title": "<<Benefit 3>>", "desc": "<<Short phrase>>" },
+          { "title": "<<Benefit 4>>", "desc": "<<Short phrase>>" }
+        ]}
+      ]},
+      { "title": "<<Center heading, e.g. Platform Architecture>>", "w": 2.6, "align": "center", "blocks": [
+        { "type": "band", "title": "<<Who or what uses it>>", "items": [
+          { "label": "<<User type 1>>" }, { "label": "<<User type 2>>" }, { "label": "<<System 3>>" }, { "label": "<<Partner 4>>" }
+        ]},
+        { "type": "banner", "title": "<<Name of the central layer>>", "subtitle": "<<What it does, one line>>" },
+        { "type": "cards", "items": [
+          { "title": "<<Capability 1>>", "desc": "<<What it does>>" },
+          { "title": "<<Capability 2>>", "desc": "<<What it does>>" },
+          { "title": "<<Capability 3>>", "desc": "<<What it does>>" },
+          { "title": "<<Capability 4>>", "desc": "<<What it does>>" },
+          { "title": "<<Capability 5>>", "desc": "<<What it does>>" },
+          { "title": "<<Capability 6>>", "desc": "<<What it does>>" }
+        ]},
+        { "type": "bar", "text": "<<Shared Services: A · B · C · D>>" },
+        { "type": "band", "layout": "inline", "title": "<<Integrations or infrastructure>>", "items": [
+          { "label": "<<Item 1>>" }, { "label": "<<Item 2>>" }, { "label": "<<Item 3>>" }, { "label": "<<Item 4>>" }
+        ]}
+      ]},
+      { "title": "<<Right heading, e.g. Use Cases>>", "w": 0.9, "blocks": [
+        { "type": "list", "hued": true, "items": [
+          { "title": "<<Use case 1>>", "desc": "<<Short phrase>>" },
+          { "title": "<<Use case 2>>", "desc": "<<Short phrase>>" },
+          { "title": "<<Use case 3>>", "desc": "<<Short phrase>>" },
+          { "title": "<<Use case 4>>", "desc": "<<Short phrase>>" }
+        ]}
+      ]}
+    ]},
+    { "panels": [ { "title": "<<Process heading, e.g. How It Works>>", "blocks": [
+      { "type": "flow", "items": [
+        { "title": "1. <<Step>>", "desc": "<<Short phrase>>" },
+        { "title": "2. <<Step>>", "desc": "<<Short phrase>>" },
+        { "title": "3. <<Step>>", "desc": "<<Short phrase>>" },
+        { "title": "4. <<Step>>", "desc": "<<Short phrase>>" },
+        { "title": "5. <<Step>>", "desc": "<<Short phrase>>" }
+      ]}
+    ]}]}
+  ]
+}

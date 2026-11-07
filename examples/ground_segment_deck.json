@@ -1,0 +1,757 @@
+{
+ "slides": [
+  {
+   "rows": [
+    {
+     "panels": [
+      {
+       "blocks": [
+        {
+         "type": "heading",
+         "text": "Ground Segment Reference Architecture",
+         "size": 22
+        },
+        {
+         "type": "text",
+         "text": "Commanding, data capture, processing, and delivery for an Earth-observation constellation.",
+         "size": 11
+        }
+       ],
+       "style": "none"
+      }
+     ]
+    },
+    {
+     "panels": [
+      {
+       "blocks": [
+        {
+         "type": "heading",
+         "text": "Mission Drivers"
+        },
+        {
+         "type": "list",
+         "items": [
+          {
+           "title": "Low Latency",
+           "desc": "Imagery delivered within hours of capture",
+           "icon": "clock"
+          },
+          {
+           "title": "Assured Command",
+           "desc": "Encrypted, authenticated uplink",
+           "icon": "shield"
+          },
+          {
+           "title": "Elastic Scale",
+           "desc": "Burst processing for surge tasking",
+           "icon": "trending"
+          },
+          {
+           "title": "Product Quality",
+           "desc": "Calibrated, traceable data products",
+           "icon": "check"
+          }
+         ]
+        }
+       ],
+       "w": 0.9
+      },
+      {
+       "blocks": [
+        {
+         "type": "band",
+         "items": [
+          {
+           "label": "Operators",
+           "icon": "users"
+          },
+          {
+           "label": "Engineers",
+           "icon": "user"
+          },
+          {
+           "label": "Planners",
+           "icon": "calendar"
+          },
+          {
+           "label": "Customers",
+           "icon": "globe"
+          },
+          {
+           "label": "Gov Partners",
+           "icon": "building"
+          },
+          {
+           "label": "Partner APIs",
+           "icon": "code"
+          }
+         ],
+         "title": "Users and Interfaces"
+        },
+        {
+         "type": "banner",
+         "title": "Ground Segment Services Fabric",
+         "subtitle": "Shared orchestration, security, and data services across all mission functions"
+        },
+        {
+         "type": "cards",
+         "items": [
+          {
+           "title": "Station Network",
+           "desc": "Pass scheduling and execution",
+           "icon": "wifi"
+          },
+          {
+           "title": "Front-End Processing",
+           "desc": "Demod and frame sync",
+           "icon": "cpu"
+          },
+          {
+           "title": "Command & Control",
+           "desc": "Procedures and uplink",
+           "icon": "layers"
+          },
+          {
+           "title": "Flight Dynamics",
+           "desc": "Orbit and maneuvers",
+           "icon": "target"
+          },
+          {
+           "title": "Mission Planning",
+           "desc": "Tasking and deconfliction",
+           "icon": "calendar"
+          },
+          {
+           "title": "Telemetry Monitoring",
+           "desc": "Limits, trends, alarms",
+           "icon": "gauge"
+          },
+          {
+           "title": "Payload Processing",
+           "desc": "L0 to L2 products",
+           "icon": "sliders"
+          },
+          {
+           "title": "Calibration & QA",
+           "desc": "Radiometric and geometric QA",
+           "icon": "check"
+          },
+          {
+           "title": "Product Archive",
+           "desc": "Catalog and storage",
+           "icon": "db"
+          },
+          {
+           "title": "Customer Delivery",
+           "desc": "Portal and APIs",
+           "icon": "globe"
+          },
+          {
+           "title": "Analytics & AI",
+           "desc": "Change detection",
+           "icon": "brain"
+          },
+          {
+           "title": "Security Operations",
+           "desc": "Monitoring and PKI",
+           "icon": "shield"
+          }
+         ],
+         "columns": 6
+        },
+        {
+         "type": "bar",
+         "text": "Common Services: Identity · Messaging · Workflow · Logging · Configuration Mgmt"
+        },
+        {
+         "type": "band",
+         "items": [
+          {
+           "label": "Commercial Cloud",
+           "icon": "cloud"
+          },
+          {
+           "label": "On-Prem Enclave",
+           "icon": "server"
+          },
+          {
+           "label": "Ground Network",
+           "icon": "network"
+          },
+          {
+           "label": "Cross-Domain Guards",
+           "icon": "lock"
+          }
+         ],
+         "title": "Infrastructure",
+         "layout": "inline"
+        }
+       ],
+       "w": 2.7,
+       "align": "center"
+      },
+      {
+       "blocks": [
+        {
+         "type": "heading",
+         "text": "Design Principles"
+        },
+        {
+         "type": "list",
+         "items": [
+          {
+           "title": "Automate the Routine",
+           "desc": "Lights-out passes, humans on exceptions",
+           "icon": "workflow"
+          },
+          {
+           "title": "Zero Trust by Default",
+           "desc": "Every service call authenticated",
+           "icon": "lock"
+          },
+          {
+           "title": "Modular Services",
+           "desc": "Replaceable components, open interfaces",
+           "icon": "box"
+          },
+          {
+           "title": "Observable End to End",
+           "desc": "Telemetry on every pipeline stage",
+           "icon": "eye"
+          }
+         ],
+         "hued": true
+        }
+       ],
+       "w": 0.9
+      }
+     ]
+    },
+    {
+     "panels": [
+      {
+       "blocks": [
+        {
+         "type": "heading",
+         "text": "Image Request to Delivery"
+        },
+        {
+         "type": "flow",
+         "items": [
+          {
+           "title": "1. Order",
+           "desc": "Area and time window",
+           "icon": "globe"
+          },
+          {
+           "title": "2. Task",
+           "desc": "Planner schedules collection",
+           "icon": "calendar"
+          },
+          {
+           "title": "3. Command",
+           "desc": "Plan uplinked on next pass",
+           "icon": "layers"
+          },
+          {
+           "title": "4. Downlink",
+           "desc": "Payload data captured",
+           "icon": "wifi"
+          },
+          {
+           "title": "5. Process",
+           "desc": "Products generated",
+           "icon": "sliders"
+          },
+          {
+           "title": "6. Deliver",
+           "desc": "Customer notified",
+           "icon": "check"
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ],
+   "notes": "Reference architecture for an Earth-observation ground segment."
+  },
+  {
+   "title": "Ground Segment System Context",
+   "subtitle": "Boundary zones show where each function runs. Connectors stay attached when boxes move.",
+   "node_w": 0.72,
+   "nodes": [
+    {
+     "title": "EO Constellation",
+     "id": "sat",
+     "desc": "Imaging satellites",
+     "shape": "card",
+     "icon": "rocket",
+     "hue": "slate",
+     "col": 0,
+     "row": 1
+    },
+    {
+     "title": "Ground Stations",
+     "id": "gs",
+     "desc": "S/X-band antennas",
+     "shape": "card",
+     "icon": "wifi",
+     "hue": "amber",
+     "col": 1,
+     "row": 0
+    },
+    {
+     "title": "Optical Relay",
+     "id": "relay",
+     "desc": "Inter-satellite downlink",
+     "shape": "card",
+     "icon": "zap",
+     "hue": "amber",
+     "col": 1,
+     "row": 2
+    },
+    {
+     "title": "Front-End Processor",
+     "id": "fep",
+     "desc": "Demod and frame sync",
+     "shape": "card",
+     "icon": "cpu",
+     "hue": "amber",
+     "col": 2,
+     "row": 1
+    },
+    {
+     "title": "Flight Dynamics",
+     "id": "fds",
+     "desc": "Orbit determination",
+     "shape": "card",
+     "icon": "target",
+     "hue": "blue",
+     "col": 3,
+     "row": 0
+    },
+    {
+     "title": "Mission Planning",
+     "id": "plan",
+     "desc": "Tasking and conflicts",
+     "shape": "card",
+     "icon": "calendar",
+     "hue": "blue",
+     "col": 4,
+     "row": 0
+    },
+    {
+     "title": "Mission Ops Center",
+     "id": "moc",
+     "desc": "Command and control",
+     "shape": "banner",
+     "icon": "layers",
+     "col": 3,
+     "row": 1
+    },
+    {
+     "title": "Security Ops",
+     "id": "soc",
+     "desc": "SIEM and monitoring",
+     "shape": "card",
+     "icon": "shield",
+     "hue": "rose",
+     "col": 4,
+     "row": 1
+    },
+    {
+     "title": "Payload Processing",
+     "id": "pdgs",
+     "desc": "L0 to L2 products",
+     "shape": "card",
+     "icon": "sliders",
+     "hue": "violet",
+     "col": 3,
+     "row": 2
+    },
+    {
+     "title": "Product Archive",
+     "id": "archive",
+     "desc": "Catalog and storage",
+     "shape": "card",
+     "icon": "db",
+     "hue": "violet",
+     "col": 4,
+     "row": 2
+    },
+    {
+     "title": "Identity & Keys",
+     "id": "idp",
+     "desc": "PKI, SSO, crypto keys",
+     "shape": "card",
+     "icon": "key",
+     "hue": "rose",
+     "col": 4,
+     "row": 3
+    },
+    {
+     "title": "Customer Portal",
+     "id": "portal",
+     "desc": "Ordering and delivery",
+     "shape": "card",
+     "icon": "globe",
+     "hue": "green",
+     "col": 5,
+     "row": 2
+    },
+    {
+     "title": "Customers",
+     "id": "cust",
+     "desc": "Commercial and government",
+     "shape": "card",
+     "icon": "users",
+     "hue": "green",
+     "col": 5,
+     "row": 3
+    }
+   ],
+   "edges": [
+    {
+     "from": "sat",
+     "to": "gs",
+     "label": "TT&C",
+     "arrow": "both"
+    },
+    {
+     "from": "sat",
+     "to": "relay",
+     "label": "payload",
+     "arrow": "end"
+    },
+    {
+     "from": "gs",
+     "to": "fep",
+     "arrow": "end"
+    },
+    {
+     "from": "relay",
+     "to": "fep",
+     "arrow": "end"
+    },
+    {
+     "from": "fep",
+     "to": "moc",
+     "label": "telemetry",
+     "arrow": "end"
+    },
+    {
+     "from": "fep",
+     "to": "pdgs",
+     "label": "raw data",
+     "arrow": "end"
+    },
+    {
+     "from": "fds",
+     "to": "plan",
+     "label": "orbits",
+     "arrow": "end"
+    },
+    {
+     "from": "plan",
+     "to": "moc",
+     "label": "plans",
+     "arrow": "end"
+    },
+    {
+     "from": "moc",
+     "to": "soc",
+     "label": "audit",
+     "dashed": true,
+     "arrow": "end"
+    },
+    {
+     "from": "pdgs",
+     "to": "archive",
+     "arrow": "end"
+    },
+    {
+     "from": "archive",
+     "to": "portal",
+     "label": "products",
+     "arrow": "end"
+    },
+    {
+     "from": "portal",
+     "to": "cust",
+     "arrow": "both"
+    },
+    {
+     "from": "idp",
+     "to": "archive",
+     "dashed": true,
+     "arrow": "end"
+    },
+    {
+     "from": "idp",
+     "to": "cust",
+     "label": "SSO",
+     "dashed": true,
+     "arrow": "end"
+    }
+   ],
+   "cols": 6,
+   "rows": 4,
+   "zones": [
+    {
+     "title": "Space",
+     "hue": "slate",
+     "cols": [
+      0,
+      0
+     ],
+     "rows": [
+      0,
+      2
+     ]
+    },
+    {
+     "title": "Ground Network",
+     "hue": "amber",
+     "cols": [
+      1,
+      2
+     ],
+     "rows": [
+      0,
+      2
+     ]
+    },
+    {
+     "title": "Mission & Payload Ops",
+     "hue": "blue",
+     "cols": [
+      3,
+      4
+     ],
+     "rows": [
+      0,
+      3
+     ]
+    },
+    {
+     "title": "User Ground",
+     "hue": "green",
+     "cols": [
+      5,
+      5
+     ],
+     "rows": [
+      1,
+      3
+     ]
+    }
+   ]
+  },
+  {
+   "title": "Spacecraft Anomaly Response",
+   "subtitle": "Two decision points, a parallel customer notice, and a plan-rework loop.",
+   "lanes": [
+    "Ops Console",
+    "Flight Engineering",
+    "Mission Director",
+    "Customer Liaison"
+   ],
+   "nodes": [
+    {
+     "title": "Alarm Raised",
+     "id": "alarm",
+     "shape": "pill",
+     "col": 0,
+     "row": 0
+    },
+    {
+     "title": "Triage Alarm",
+     "id": "triage",
+     "desc": "Check limits and trends",
+     "shape": "card",
+     "icon": "alert",
+     "hue": "amber",
+     "col": 1,
+     "row": 0
+    },
+    {
+     "title": "Vehicle safe?",
+     "id": "safe",
+     "shape": "decision",
+     "hue": "amber",
+     "col": 2,
+     "row": 0
+    },
+    {
+     "title": "Monitor & Log",
+     "id": "monitor",
+     "desc": "Watch for recurrence",
+     "shape": "card",
+     "icon": "eye",
+     "hue": "teal",
+     "col": 3,
+     "row": 0
+    },
+    {
+     "title": "Safe Vehicle",
+     "id": "safing",
+     "desc": "Protect power",
+     "shape": "card",
+     "icon": "shield",
+     "hue": "rose",
+     "col": 2,
+     "row": 1
+    },
+    {
+     "title": "Root Cause",
+     "id": "rca",
+     "desc": "Telemetry review",
+     "shape": "card",
+     "icon": "search",
+     "hue": "violet",
+     "col": 3,
+     "row": 1
+    },
+    {
+     "title": "Recovery Plan",
+     "id": "plan",
+     "desc": "Command set",
+     "shape": "card",
+     "icon": "file",
+     "hue": "blue",
+     "col": 4,
+     "row": 1
+    },
+    {
+     "title": "Revise Plan",
+     "id": "revise",
+     "desc": "Address concerns",
+     "shape": "card",
+     "icon": "refresh",
+     "hue": "rose",
+     "col": 5,
+     "row": 1
+    },
+    {
+     "title": "Approve plan?",
+     "id": "approve",
+     "shape": "decision",
+     "hue": "amber",
+     "col": 5,
+     "row": 2
+    },
+    {
+     "title": "Uplink Fix",
+     "id": "uplink",
+     "desc": "Execute on next pass",
+     "shape": "card",
+     "icon": "wifi",
+     "hue": "green",
+     "col": 6,
+     "row": 0
+    },
+    {
+     "title": "Impact Notice",
+     "id": "notice",
+     "desc": "Flag orders",
+     "shape": "card",
+     "icon": "mail",
+     "hue": "slate",
+     "col": 2,
+     "row": 3
+    },
+    {
+     "title": "Restore Service",
+     "id": "restore",
+     "desc": "Customers notified",
+     "shape": "card",
+     "icon": "check",
+     "hue": "green",
+     "col": 6,
+     "row": 3
+    }
+   ],
+   "edges": [
+    {
+     "from": "alarm",
+     "to": "triage",
+     "arrow": "end"
+    },
+    {
+     "from": "triage",
+     "to": "safe",
+     "arrow": "end"
+    },
+    {
+     "from": "safe",
+     "to": "monitor",
+     "label": "Yes",
+     "arrow": "end"
+    },
+    {
+     "from": "safe",
+     "to": "safing",
+     "label": "No",
+     "arrow": "end"
+    },
+    {
+     "from": "monitor",
+     "to": "rca",
+     "label": "recurs",
+     "dashed": true,
+     "arrow": "end"
+    },
+    {
+     "from": "safing",
+     "to": "rca",
+     "arrow": "end"
+    },
+    {
+     "from": "safing",
+     "to": "notice",
+     "label": "outage",
+     "dashed": true,
+     "arrow": "end"
+    },
+    {
+     "from": "rca",
+     "to": "plan",
+     "arrow": "end"
+    },
+    {
+     "from": "plan",
+     "to": "approve",
+     "arrow": "end"
+    },
+    {
+     "from": "approve",
+     "to": "revise",
+     "label": "No",
+     "arrow": "end"
+    },
+    {
+     "from": "revise",
+     "to": "plan",
+     "label": "rework",
+     "dashed": true,
+     "arrow": "end"
+    },
+    {
+     "from": "approve",
+     "to": "uplink",
+     "label": "Yes",
+     "arrow": "end"
+    },
+    {
+     "from": "uplink",
+     "to": "restore",
+     "arrow": "end"
+    }
+   ],
+   "cols": 7
+  }
+ ]
+}

@@ -1,0 +1,23 @@
+{
+  "title": "Purchase Approval Process",
+  "lanes": ["Employee", "Manager", "Finance", "Procurement"],
+  "nodes": [
+    {"name": "Submit Request", "type": "start", "lane": "Employee"},
+    {"name": "Review Request", "description": "Check need and budget line", "lane": "manager"},
+    {"name": "Over $10k?", "type": "diamond", "lane": "Manager"},
+    {"name": "Finance Review", "description": "Validate funding source", "lane": "Finance", "icon": "money"},
+    {"name": "Revise Request", "description": "Add justification", "lane": "Employee"},
+    {"name": "Issue PO", "description": "Create purchase order", "lane": "Procurement", "icon": "document"},
+    {"name": "Done", "type": "end", "lane": "Procurement"}
+  ],
+  "edges": [
+    {"source": "Submit Request", "target": "Review Request"},
+    {"source": "Review Request", "target": "Over $10k?"},
+    {"source": "Over $10k?", "target": "Finance Review", "label": "Yes"},
+    {"source": "Over $10k?", "target": "Issue PO", "label": "No"},
+    {"source": "Finance Review", "target": "Issue PO", "label": "Funded"},
+    {"source": "Finance Review", "target": "Revise Request", "label": "Rejected", "style": "dashed"},
+    {"source": "Revise Request", "target": "Review Request", "style": "dashed"},
+    {"source": "Issue PO", "target": "Done"}
+  ]
+}

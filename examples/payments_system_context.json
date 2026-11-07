@@ -1,0 +1,12 @@
+{"title": "Payments System Context",
+ "nodes": [
+  {"name": "Customer", "icon": "person"}, {"name": "Mobile App"}, {"name": "Web Portal"},
+  {"name": "API Gateway"}, {"name": "Payments Service", "kind": "core", "description": "Authorize and settle"},
+  {"name": "Fraud Engine", "description": "Real-time risk scoring"}, {"name": "Ledger DB"},
+  {"name": "Card Network", "description": "Visa / Mastercard"}, {"name": "Identity Provider"}],
+ "edges": [
+  ["Customer", "Mobile App"], ["Customer", "Web Portal"], ["Mobile App", "API Gateway", "HTTPS"], ["Web Portal", "API Gateway", "HTTPS"],
+  ["API Gateway", "Payments Service"], {"from": "API Gateway", "to": "Identity Provider", "label": "OIDC", "dashed": true},
+  ["Payments Service", "Fraud Engine", "score"], ["Payments Service", "Ledger DB"], ["Payments Service", "Card Network", "ISO 8583"]],
+ "zones": [{"title": "Our Cloud", "nodes": ["API Gateway", "Payments Service", "Fraud Engine", "Ledger DB"], "color": "blue"}]
+}
