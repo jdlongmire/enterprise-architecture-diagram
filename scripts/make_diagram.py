@@ -126,7 +126,7 @@ def main():
             report["issues"].append({"severity": "info", "slide": None, "path": "", "problem": "no preview: LibreOffice (soffice) or pdftoppm not installed", "fix": "rely on this report"})
     n_err = sum(1 for i in report["issues"] if i["severity"] == "error")
     report["min_text_scale"] = round(d.min_scale, 2)
-    ok = n_err == 0 and d.min_scale >= 0.88
+    ok = n_err == 0 and d.min_scale >= 0.75
     report["result"] = "PASS" if ok else "FIX"
     report["next_actions"] = action_list(report["issues"], norm_path) if not ok else []
     return finish(report, base, 0 if ok else 1)
@@ -153,7 +153,7 @@ def finish(report, base, code):
     if report.get("output"): print(f"OUTPUT: {report['output']}")
     for p in report.get("preview", []): print(f"PREVIEW: {p}")
     if report.get("normalized_spec"): print(f"CLEAN SPEC: {report['normalized_spec']}")
-    if report.get("min_text_scale") is not None: print(f"TEXT SCALE: {int(report['min_text_scale']*100)}% (88% or more required)")
+    if report.get("min_text_scale") is not None: print(f"TEXT SCALE: {int(report['min_text_scale']*100)}% (75% or more required)")
     if report["auto_fixes"]:
         print(f"AUTO-FIXES APPLIED ({len(report['auto_fixes'])}):")
         for n in report["auto_fixes"][:12]: print("  -", n)

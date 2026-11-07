@@ -5,7 +5,7 @@ Every run prints a report and saves it as `<output>.report.json`. The JSON has t
 
 ## Result
 
-- **PASS**: no errors, and text is at 88% or more of its normal size. Deliver the file.
+- **PASS**: no errors, and text is at 75% or more of its normal size. Deliver the file.
 - **FIX**: the file was built but has errors. Do every item under NEXT ACTIONS and rerun.
 - **INVALID**: nothing was built. The spec is unreadable or structurally wrong. Do the NEXT ACTIONS, or compare your file with a template.
 

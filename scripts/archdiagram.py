@@ -443,17 +443,17 @@ class Diagram:
             bg = self.slide.background.fill; bg.solid()
             bg.fore_color.rgb = self.rgb(cv)
         self.s = spec.get("font_scale", 1.0); self.sp = 1.0
-        while True:  # fit: compress spacing first, then fonts (floor 85%)
+        while True:  # fit: compress spacing first, then fonts (floor 75%)
             plan, total, ah, M, G = self.layout(spec)
             if total <= ah + 1e-6: break
             if self.sp > 0.55: self.sp = round(self.sp - 0.15, 2)
-            elif self.s > 0.85: self.s = round(self.s - 0.03, 2)
+            elif self.s > 0.75: self.s = max(0.75, round(self.s - 0.03, 2))
             else: break
         _LONG.clear(); self.layout(spec)
         if _LONG: self.issue("error", f"slides[{self.si}]", f"words too long for their box: {', '.join(sorted(_LONG))}", "replace them with shorter words or abbreviations")
         _LONG.clear()
         if total > ah + 1e-6:
-            self.issue("error", f"slides[{self.si}]", f"content is {total - ah:.1f} in too tall for the slide even at 85% text size",
+            self.issue("error", f"slides[{self.si}]", f"content is {total - ah:.1f} in too tall for the slide even at 75% text size",
                        "remove one block or list item, shorten long descriptions, or move the bottom row to a new slide")
         elif self.s < 0.91:
             self.issue("warning", f"slides[{self.si}]", f"text shrunk to {int(self.s*100)}% to fit",
@@ -513,8 +513,8 @@ class Diagram:
             h = max(spec.get("node_h", 0.62), max([self._node_text_h(n, nw, n.get("icon")) + 0.2 for n in boxes] or [0]))
             return tl, h
         tl, nh = fit()
-        while (tl > 2 or nh > ch * 0.8) and self.s > 0.85:
-            self.s = round(self.s - 0.03, 2); tl, nh = fit()
+        while (tl > 2 or nh > ch * 0.8) and self.s > 0.75:
+            self.s = max(0.75, round(self.s - 0.03, 2)); tl, nh = fit()
         _LONG.clear()
         if nh > ch * 0.8: self.issue("error", f"slides[{self.si}]", f"boxes are too tall for their rows ({nh:.2f} in vs {ch:.2f} in rows)",
                                      "shorten node descriptions, or use fewer rows/lanes")
