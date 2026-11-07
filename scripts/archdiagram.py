@@ -23,7 +23,7 @@ THEME = {
     "font": "Calibri",
     "ink": "2A3546", "ink2": "4A5568", "ink3": "6B7686",
     "accent": "2F6FD6", "accent2": "2A63C4", "on_accent": "FFFFFF", "on_accent_sub": "EAF1FC",
-    "canvas": "EEF2F7", "panel": "FFFFFF", "panel_line": "DDE3EC",
+    "canvas": None, "panel": "FFFFFF", "panel_line": "DDE3EC",
     "sub_fill": "F8FAFC", "sub_line": "E4E9F0", "bar_fill": "F3F8FE", "bar_line": "CFE0F6", "bar_ink": "2A4F8C",
     "arrow": "6D8FC9", "step_fill": "FBFCFE",
     # hue: [tint, line, icon]
@@ -438,8 +438,10 @@ class Diagram:
 
     def add_slide(self, spec):
         self.slide = self.prs.slides.add_slide(self.prs.slide_layouts[6]); self.si = len(self.prs.slides) - 1
-        bg = self.slide.background.fill; bg.solid()
-        bg.fore_color.rgb = self.rgb(spec.get("canvas", self.T["canvas"]))
+        cv = spec.get("canvas", self.T["canvas"])
+        if cv:
+            bg = self.slide.background.fill; bg.solid()
+            bg.fore_color.rgb = self.rgb(cv)
         self.s = spec.get("font_scale", 1.0); self.sp = 1.0
         while True:  # fit: compress spacing first, then fonts (floor 85%)
             plan, total, ah, M, G = self.layout(spec)
@@ -479,7 +481,9 @@ class Diagram:
         from pptx.enum.shapes import MSO_CONNECTOR
         from pptx.enum.dml import MSO_LINE
         self.slide = self.prs.slides.add_slide(self.prs.slide_layouts[6]); self.si = len(self.prs.slides) - 1
-        bg = self.slide.background.fill; bg.solid(); bg.fore_color.rgb = self.rgb(spec.get("canvas", self.T["canvas"]))
+        cv = spec.get("canvas", self.T["canvas"])
+        if cv:
+            bg = self.slide.background.fill; bg.solid(); bg.fore_color.rgb = self.rgb(cv)
         self.s = spec.get("font_scale", 1.0)
         S = self.slide.shapes; T = self.T
         M = spec.get("margin", 0.35); y0 = M
@@ -708,7 +712,7 @@ class Diagram:
             seg_len = max(abs(a[0] - b[0]) + abs(a[1] - b[1]) for a, b in zip(pts, pts[1:]))
             if lw > max(seg_len, 0.4) + 0.5:
                 self.issue("warning", epth + ".label", f'line label "{e["label"]}" is much longer than its line', "use a 1 to 2 word label")
-            lb = self.rrect(S, mx - lw / 2, my - lh / 2, lw, lh, spec.get("canvas", T["canvas"]) if not lanes else T["panel"], None, radius=0.11, name=f"Label - {e['label']}")
+            lb = self.rrect(S, mx - lw / 2, my - lh / 2, lw, lh, (spec.get("canvas", T["canvas"]) or T["panel"]) if not lanes else T["panel"], None, radius=0.11, name=f"Label - {e['label']}")
             tf = lb.text_frame; tf.margin_left = tf.margin_right = tf.margin_top = tf.margin_bottom = 0; tf.vertical_anchor = MSO_ANCHOR.MIDDLE
             p = tf.paragraphs[0]; p.alignment = PP_ALIGN.CENTER
             r = p.add_run(); r.text = e["label"]; f = r.font; f.name = T["font"]; f.size = Pt(self.fs(8)); f.color.rgb = self.rgb(T["ink3"])

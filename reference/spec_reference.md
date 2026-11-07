@@ -60,7 +60,7 @@ Hues: `blue green violet amber rose teal slate`. Leave `hue` out and the colors 
 | `accent`, `accent2` | Banner gradient colors | 2F6FD6, 2A63C4 |
 | `arrow` | Line and arrow color | 6D8FC9 |
 | `ink`, `ink2`, `ink3` | Text colors (titles, body, captions) | 2A3546, 4A5568, 6B7686 |
-| `canvas` | Slide background | EEF2F7 |
+| `canvas` | Slide background | none (no fill; set a hex color to paint one) |
 | `hues` | Override a hue: `{"blue": ["tint", "border", "icon"]}` | (see engine) |
 | `hue_order` | The order colors cycle in | blue, green, violet, amber, rose, teal |
 
