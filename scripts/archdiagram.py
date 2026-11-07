@@ -76,6 +76,18 @@ def text_w(text, size, bold=False):
     return sum(_CW.get(ch, 0.5) for ch in str(text)) * size / 72 * (1.05 if bold else 1.0) * _FW[0]
 
 
+def word_w(text, size, bold=False):
+    """Word width under the widest shipped metric. Calibri is the design font, but a renderer
+    without it (LibreOffice preview) substitutes a wider font; a word that fits on paper must
+    not split there either."""
+    w = text_w(text, size, bold)
+    if _METRIC[0] != "arial":
+        _METRIC[0] = "arial"
+        w = max(w, text_w(text, size, bold))
+        _METRIC[0] = "calibri"
+    return w
+
+
 def est_lines(text, size, width, bold=False):
     if not text:
         return 0
@@ -502,20 +514,41 @@ class Diagram:
         cw, ch = aw / cols, ah / rows
         nw = min(cw * spec.get("node_w", 0.82 if lanes else 0.78), spec.get("node_max_w", 2.6))
         boxes = [n for n in nodes if n.get("shape", "card") in ("card", "banner")]
+        margins = lambda n: (0.62 if n.get("icon") else 0.24) + 0.07
+        def eff_widths():
+            # A box expands (up to its cell width plus a small spill) so its longest word fits whole;
+            # a word is never split across lines.
+            ws = {}
+            for n in boxes:
+                need = 0.0
+                for txt, sz, b in ((n["title"], 10.5, True), (n.get("desc"), 8.5, False)):
+                    if txt: need = max(need, max(word_w(wd, self.fs(sz), b) for wd in txt.split()))
+                ws[n["id"]] = min(max(nw * n.get("w", 1), need * 1.03 / 0.97 + margins(n)), cw * 1.15)
+            return ws
+        WS = eff_widths()
         def fit():
             _LONG.clear()
-            tl = max([est_lines(n["title"], self.fs(10.5), nw - (0.62 if n.get("icon") else 0.24) - 0.07, True) for n in boxes] or [1])
+            WS.update(eff_widths())
+            tl = max([est_lines(n["title"], self.fs(10.5), WS[n["id"]] - margins(n), True) for n in boxes] or [1])
             for n in nodes:
                 if n.get("shape") in ("pill", "decision"):
                     avail = nw * 0.8 - 0.45 if n.get("shape") == "pill" else min(nw * 1.05, 1.8) * 0.5 - 0.04  # inscribed text area
                     est_lines(n["title"], self.fs(10.5 if n.get("shape") == "pill" else 9.5), avail, True)
             if _LONG: tl = max(tl, 3)
-            h = max(spec.get("node_h", 0.62), max([self._node_text_h(n, nw, n.get("icon")) + 0.2 for n in boxes] or [0]))
-            return tl, h
-        tl, nh = fit()
-        while (tl > 2 or nh > ch * 0.8) and self.s > 0.75:
-            self.s = max(0.75, round(self.s - 0.03, 2)); tl, nh = fit()
-        _LONG.clear()
+            dl = max([est_lines(n.get("desc"), self.fs(8.5), WS[n["id"]] - margins(n)) for n in boxes if n.get("desc")] or [1])
+            h = max(spec.get("node_h", 0.62), max([self._node_text_h(n, WS[n["id"]], n.get("icon")) + 0.2 for n in boxes] or [0]))
+            return tl, dl, h
+        tl, dl, nh = fit()
+        while (tl > 2 or dl > 2 or nh > ch * 0.8) and self.s > 0.75:
+            self.s = max(0.75, round(self.s - 0.03, 2)); tl, dl, nh = fit()
+        long_words = set(_LONG); _LONG.clear()
+        for n in boxes:
+            avail = (WS[n["id"]] - margins(n)) * 0.97
+            for txt, sz, b in ((n["title"], 10.5, True), (n.get("desc"), 8.5, False)):
+                if not txt: continue
+                for wd in txt.split():
+                    if word_w(wd, self.fs(sz), b) > avail: long_words.add(wd)
+        if long_words: self.issue("error", f"slides[{self.si}]", f"words too long for their box: {', '.join(sorted(long_words))}", "replace them with shorter words or abbreviations")
         if nh > ch * 0.8: self.issue("error", f"slides[{self.si}]", f"boxes are too tall for their rows ({nh:.2f} in vs {ch:.2f} in rows)",
                                      "shorten node descriptions, or use fewer rows/lanes")
         if self.s < 0.91: self.issue("warning", f"slides[{self.si}]", f"box text shrunk to {int(self.s*100)}%", "shorten node titles and descriptions, or use fewer columns")
@@ -546,14 +579,14 @@ class Diagram:
             kind = n.get("shape", "card")
             npth = f"slides[{self.si}].nodes[{i}]"
             if kind in ("card", "banner"):
-                tw_ = nw - (0.62 if n.get("icon") else 0.24) - 0.07
+                tw_ = WS[n["id"]] - (0.62 if n.get("icon") else 0.24) - 0.07
                 self.check(npth + ".title", "Box title", n["title"], self.fs(10.5), tw_, 2, True)
                 self.check(npth + ".desc", "Box desc", n.get("desc"), self.fs(8.5), tw_, 2)
             elif kind == "pill":
                 self.check(npth + ".title", "Start/end title", n["title"], self.fs(10.5), nw * 0.8 - 0.45, 2, True)
             else:
                 self.check(npth + ".title", "Decision text", n["title"], self.fs(9.5), min(nw * 1.05, 1.8) * 0.5 - 0.04, 2, True)
-            w_ = {"decision": min(nw * 1.05, 1.8), "pill": nw * 0.8}.get(kind, nw) * n.get("w", 1)
+            w_ = WS[n["id"]] if kind in ("card", "banner") else {"decision": min(nw * 1.05, 1.8), "pill": nw * 0.8}[kind] * n.get("w", 1)
             h_ = {"decision": max(nh, 0.95), "pill": min(nh, 0.5)}.get(kind, nh)
             x, y = cx(n["col"]) - w_ / 2, cy(n["row"]) - h_ / 2
             tint, line, icol = self.hue(n if (n.get("hue") or kind != "decision") else dict(n, hue="amber"), i)
